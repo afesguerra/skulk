@@ -1,7 +1,8 @@
 {
-  "name": "zorro",
+  "name": "skulk",
   "version": "0.1.0",
   "private": true,
+  "homepage": "skulk",
   "dependencies": {
     "@cloudscape-design/components": "^3.0.438",
     "@cloudscape-design/global-styles": "^1.0.15",
