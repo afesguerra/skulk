@@ -1,5 +1,7 @@
 export interface Income {
+    readonly id: string;
+    readonly name: string;
     readonly monthlyIncome: number;
     readonly weeklyHours: number;
-    readonly hoursOnFamilyTasks: number;
+    readonly hoursOnHouseholdTasks: number;
 }

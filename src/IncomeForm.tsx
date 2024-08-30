@@ -8,6 +8,14 @@ export interface IncomeFormProps {
 
 export const IncomeForm = ({income, save}: IncomeFormProps) =>
     <SpaceBetween size={"m"} direction={"vertical"}>
+        <FormField label="Name">
+            <Input
+                type={"text"}
+                value={`${income.name}`}
+                inputMode={"text"}
+                onChange={({detail}) => save({...income, name: detail.value})}
+            />
+        </FormField>
         <FormField label="Monthly income">
             <Input
                 type={"number"}
@@ -24,12 +32,12 @@ export const IncomeForm = ({income, save}: IncomeFormProps) =>
                 onChange={({detail}) => save({...income, weeklyHours: +detail.value})}
             />
         </FormField>
-        <FormField label="Hours on family tasks">
+        <FormField label="Hours on household tasks">
             <Input
                 type={"number"}
-                value={`${income.hoursOnFamilyTasks}`}
+                value={`${income.hoursOnHouseholdTasks}`}
                 inputMode={"numeric"}
-                onChange={({detail}) => save({...income, hoursOnFamilyTasks: +detail.value})}
+                onChange={({detail}) => save({...income, hoursOnHouseholdTasks: +detail.value})}
             />
         </FormField>
     </SpaceBetween>;

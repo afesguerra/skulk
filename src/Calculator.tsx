@@ -1,117 +1,103 @@
 import {
-    Box,
+    Button,
     ColumnLayout,
     Container,
     ContentLayout,
     FormField,
     Header,
     Input,
-    SpaceBetween
-} from "@cloudscape-design/components"
-import { useState } from "react";
-import { ContributionSummary } from "./ContributionSummary";
+    SpaceBetween,
+    Tabs,
+} from "@cloudscape-design/components";
+import { useCallback, useState } from "react";
 import { IncomeForm } from "./IncomeForm";
 import { Income } from "./model";
+import { Summary } from "./Summary.tsx";
 
-const buildIncomeArray = (count: number): Income[] => Array.from({length: count})
-    .map((_, i): Income => ({
-        monthlyIncome: 2000 * (40 - (i * 10)) / 40,
-        weeklyHours: 40 - (i * 10),
-        hoursOnFamilyTasks: i * 10,
-    }));
+const initialIncomes: Income[] = [{
+    id: crypto.randomUUID(),
+    name: `Loid Forger`,
+    monthlyIncome: 2000,
+    weeklyHours: 40,
+    hoursOnHouseholdTasks: 0,
+}, {
+    id: crypto.randomUUID(),
+    name: `Yor Forger`,
+    monthlyIncome: 2000 * 30 / 40,
+    weeklyHours: 30,
+    hoursOnHouseholdTasks: 10,
+}];
 
 export const Calculator = () => {
-    const [memberCount] = useState(2);
-    const [incomes, setIncomes] = useState(buildIncomeArray(memberCount));
+    const [incomes, setIncomes] = useState<Income[]>(initialIncomes);
     const [sharedExpenses, setSharedExpenses] = useState(500);
+
     const [sharedSavings, setSharedSavings] = useState(500);
 
-    const saveIncomeOnIndex = (index: number) => (input: Income) => {
-        setIncomes(prev => prev.map((v, i) => i === index ? input : v));
-    };
+    const saveIncomeOnId = useCallback((id: string) => (input: Income) => {
+        setIncomes(prev => prev.map(v => v.id === id ? input : v));
+    }, [setIncomes]);
 
-    const maxWeeklyHours = Math.max(...incomes.map(x => x.weeklyHours));
-    const totalWeeklyHours = incomes.map(x => x.weeklyHours).reduce((a, b) => a + b, 0);
-    const totalIncome = incomes.map(x => x.monthlyIncome).reduce((a, b) => a + b, 0);
-    const avgHoursOnFamilyTasks = incomes.map(x => x.hoursOnFamilyTasks).reduce((a, b) => a + b, 0) / incomes.length;
-    const sharedItems = sharedExpenses + sharedSavings;
+    const incomeFormsHeader = <Header
+        variant={"h1"}
+        actions={<Button
+            iconName={'add-plus'}
+            onClick={() => setIncomes(prev => [...prev, {
+                id: crypto.randomUUID(),
+                name: `Fiona Frost`,
+                monthlyIncome: 2000,
+                weeklyHours: 40,
+                hoursOnHouseholdTasks: 0,
+            }])}>
+            Add member
+        </Button>}>
+        Income Data
+    </Header>;
 
-    return <ContentLayout>
-        <SpaceBetween direction={'vertical'} size={'l'}>
-            <Container header={<Header variant={'h1'}>Income Data</Header>}>
-                <ColumnLayout columns={memberCount}>
-                    {incomes.map(
-                        (income, index) =>
-                            <Box>
-                                <Header variant={'h3'}>Member {index}</Header>
-                                <IncomeForm
-                                    key={index}
-                                    income={income}
-                                    save={saveIncomeOnIndex(index)}
-                                />
-                            </Box>
-                    )}
-                </ColumnLayout>
-            </Container>
-            <Container header={<Header variant={'h1'}>Shared items</Header>}>
-                <ColumnLayout columns={2}>
-                    <FormField label="Monthly shared expenses and savings">
-                        <Input
-                            type={"number"}
-                            value={`${sharedExpenses}`}
-                            inputMode={"numeric"}
-                            onChange={({detail}) => setSharedExpenses(+detail.value)}
-                        />
-                    </FormField>
-                    <FormField label="Monthly shared savings">
-                        <Input
-                            type={"number"}
-                            value={`${sharedSavings}`}
-                            inputMode={"numeric"}
-                            onChange={({detail}) => setSharedSavings(+detail.value)}
-                        />
-                    </FormField>
-                </ColumnLayout>
-            </Container>
-            <Container header={<Header variant={'h1'}>Summary</Header>}>
-                <ColumnLayout columns={5} variant={'text-grid'}>
-                    <div>
-                        <Box variant="awsui-key-label">Total income</Box>
-                        <div>{totalIncome}</div>
-                    </div>
-                    <div>
-                        <Box variant="awsui-key-label">Total savings</Box>
-                        <div>{totalIncome - sharedItems}</div>
-                    </div>
-                    <div>
-                        <Box variant="awsui-key-label">Average hours spent on family tasks</Box>
-                        <div>{avgHoursOnFamilyTasks}</div>
-                    </div>
-                    <div>
-                        <Box variant="awsui-key-label">Total of hours worked in a week</Box>
-                        <div>{totalWeeklyHours}</div>
-                    </div>
-                    <div>
-                        <Box variant="awsui-key-label">Max weekly hours worked</Box>
-                        <div>{maxWeeklyHours}</div>
-                    </div>
-                </ColumnLayout>
-            </Container>
-            <Container header={<Header variant={'h1'}>Distribution</Header>}>
-                <ColumnLayout columns={memberCount} variant={'text-grid'}>
-                    {incomes.map((income, index) =>
-                        <ContributionSummary
+    return (
+        <ContentLayout>
+            <SpaceBetween direction={"vertical"} size={"l"}>
+                <Container header={incomeFormsHeader}>
+                    <Tabs tabs={incomes.map((income, index) => ({
+                        id: `${income.id}`,
+                        label: `${income.name}`,
+                        content: <IncomeForm
                             key={index}
-                            avgHoursOnFamilyTasks={avgHoursOnFamilyTasks}
-                            maxWeeklyHours={maxWeeklyHours}
-                            totalWeeklyHours={totalWeeklyHours}
-                            totalIncome={totalIncome}
                             income={income}
-                            sharedPoolContributions={sharedItems}
-                        />
-                    )}
-                </ColumnLayout>
-            </Container>
-        </SpaceBetween>
-    </ContentLayout>
-}
+                            save={saveIncomeOnId(income.id)}
+                        />,
+                        dismissible: index > 1,
+                        dismissLabel: 'Remove this household member',
+                        onDismiss: () => setIncomes(prev => prev.filter(x => x.id !== income.id)),
+                    }))}/>
+                </Container>
+                <Container header={<Header
+                    variant={"h1"}
+                    description={"In this section add items that apply for the whole household"}>Shared items</Header>}>
+                    <ColumnLayout columns={2}>
+                        <FormField label="Monthly expenses" description={"For common items like rent or groceries"}>
+                            <Input
+                                type={"number"}
+                                value={`${sharedExpenses}`}
+                                inputMode={"numeric"}
+                                onChange={({detail}) => setSharedExpenses(+detail.value)}
+                            />
+                        </FormField>
+                        <FormField label="Monthly savings" description={"For common goals like trips together"}>
+                            <Input
+                                type={"number"}
+                                value={`${sharedSavings}`}
+                                inputMode={"numeric"}
+                                onChange={({detail}) => setSharedSavings(+detail.value)}
+                            />
+                        </FormField>
+                    </ColumnLayout>
+                </Container>
+                <Summary
+                    sharedItems={sharedExpenses + sharedSavings}
+                    incomes={incomes}
+                />
+            </SpaceBetween>
+        </ContentLayout>
+    );
+};
