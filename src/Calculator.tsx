@@ -4,6 +4,7 @@ import {
     Container,
     ContentLayout,
     FormField,
+    Grid,
     Header,
     Input,
     SpaceBetween,
@@ -27,6 +28,9 @@ const initialIncomes: Income[] = [{
     weeklyHours: 30,
     hoursOnHouseholdTasks: 10,
 }];
+const description = `This is a website to help calculate how to distribute household expenses
+taking into account how much time each household member ears as well
+as how much time they put in for household tasks`;
 
 export const Calculator = () => {
     const [incomes, setIncomes] = useState<Income[]>(initialIncomes);
@@ -53,9 +57,38 @@ export const Calculator = () => {
         Income Data
     </Header>;
 
-    return (
-        <ContentLayout>
-            <SpaceBetween direction={"vertical"} size={"l"}>
+    return <ContentLayout
+        headerVariant={'high-contrast'}
+        header={<Header variant={'h1'} description={description}>Household expenses calculator</Header>}>
+        <Grid gridDefinition={[{colspan: 3}, {colspan: 9}]}>
+            <SpaceBetween direction={"vertical"} size={"m"}>
+                <Container header={<Header
+                    variant={"h1"}
+                    description={"In this section add items that apply for the whole household"}>Shared
+                    items</Header>}>
+                    <ColumnLayout columns={2}>
+                        <FormField
+                            label="Monthly expenses"
+                            description="For common items like rent or groceries">
+                            <Input
+                                type={"number"}
+                                value={`${sharedExpenses}`}
+                                inputMode={"numeric"}
+                                onChange={({detail}) => setSharedExpenses(+detail.value)}
+                            />
+                        </FormField>
+                        <FormField
+                            label="Monthly savings"
+                            description="For common goals like traveling or going out on dates">
+                            <Input
+                                type={"number"}
+                                value={`${sharedSavings}`}
+                                inputMode={"numeric"}
+                                onChange={({detail}) => setSharedSavings(+detail.value)}
+                            />
+                        </FormField>
+                    </ColumnLayout>
+                </Container>
                 <Container header={incomeFormsHeader}>
                     <Tabs tabs={incomes.map((income, index) => ({
                         id: `${income.id}`,
@@ -70,33 +103,11 @@ export const Calculator = () => {
                         onDismiss: () => setIncomes(prev => prev.filter(x => x.id !== income.id)),
                     }))}/>
                 </Container>
-                <Container header={<Header
-                    variant={"h1"}
-                    description={"In this section add items that apply for the whole household"}>Shared items</Header>}>
-                    <ColumnLayout columns={2}>
-                        <FormField label="Monthly expenses" description={"For common items like rent or groceries"}>
-                            <Input
-                                type={"number"}
-                                value={`${sharedExpenses}`}
-                                inputMode={"numeric"}
-                                onChange={({detail}) => setSharedExpenses(+detail.value)}
-                            />
-                        </FormField>
-                        <FormField label="Monthly savings" description={"For common goals like trips together"}>
-                            <Input
-                                type={"number"}
-                                value={`${sharedSavings}`}
-                                inputMode={"numeric"}
-                                onChange={({detail}) => setSharedSavings(+detail.value)}
-                            />
-                        </FormField>
-                    </ColumnLayout>
-                </Container>
-                <Summary
-                    sharedItems={sharedExpenses + sharedSavings}
-                    incomes={incomes}
-                />
             </SpaceBetween>
-        </ContentLayout>
-    );
+            <Summary
+                sharedItems={sharedExpenses + sharedSavings}
+                incomes={incomes}
+            />
+        </Grid>
+    </ContentLayout>;
 };

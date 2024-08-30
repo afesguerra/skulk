@@ -9,6 +9,7 @@ applyMode(Mode.Dark);
 
 const App = () => <I18nProvider messages={[messages]}>
     <AppLayout
+        headerVariant={'high-contrast'}
         toolsHide={true}
         navigationHide={true}
         content={<Calculator/>}
