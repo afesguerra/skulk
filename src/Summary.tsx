@@ -25,6 +25,24 @@ const enum Metrics {
     SAVINGS = 'Total savings',
 }
 
+const locale = [...navigator.languages, navigator.language][0];
+
+const currencyFormatter = Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 2,
+});
+
+const percentFormatter = Intl.NumberFormat(locale, {
+    style: 'percent',
+    maximumFractionDigits: 2,
+});
+
+const decimalFormatter = Intl.NumberFormat(locale, {
+    style: 'decimal',
+    maximumFractionDigits: 2,
+});
+
 interface SummaryProps {
     readonly sharedItems: number;
     readonly incomes: Income[];
@@ -36,16 +54,17 @@ export const Summary = ({incomes, sharedItems}: SummaryProps) => {
     const totalIncome = useMemo(() => sumProp(incomes, 'monthlyIncome'), [incomes]);
 
     const series: BarChartProps<string>['series'] = incomes.map(i => {
-        const contributions = sharedItems * i.monthlyIncome / totalIncome;
+        const contributions = i.monthlyIncome * sharedItems / totalIncome;
         const compensation = (i.hoursOnHouseholdTasks - avgHoursOnHouseholdTasks) * (totalIncome - sharedItems) / totalWeeklyHours;
         const savings = i.monthlyIncome - contributions + compensation;
         return ({
             title: i.name,
             type: 'bar',
+            valueFormatter: currencyFormatter.format,
             data: [
-                {x: Metrics.SHARED, y: Math.round(contributions)},
-                {x: Metrics.COMPENSATION, y: Math.round(compensation)},
-                {x: Metrics.SAVINGS, y: Math.round(savings)},
+                {x: Metrics.SHARED, y: contributions},
+                {x: Metrics.COMPENSATION, y: compensation},
+                {x: Metrics.SAVINGS, y: savings},
             ],
         });
     });
@@ -59,14 +78,14 @@ export const Summary = ({incomes, sharedItems}: SummaryProps) => {
                     type: "group",
                     items: [{
                         label: "Percentage of income for shared items",
-                        value: `${Math.round(sharedItems / totalIncome * 10000) / 100}%`,
+                        value: percentFormatter.format(sharedItems / totalIncome),
                     }],
                 }, {
                     title: "Effort",
                     type: "group",
                     items: [{
                         label: "Average hours spent on household tasks",
-                        value: avgHoursOnHouseholdTasks,
+                        value: decimalFormatter.format(avgHoursOnHouseholdTasks),
                     }],
                 }]}
             />
@@ -80,7 +99,7 @@ export const Summary = ({incomes, sharedItems}: SummaryProps) => {
                 ]}
                 ariaLabel="Stacked bar chart"
                 height={300}
-                yTitle="$$$"
+                yTickFormatter={currencyFormatter.format}
                 empty={
                     <Box textAlign="center" color="inherit">
                         <b>No data available</b>

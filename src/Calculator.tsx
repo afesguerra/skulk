@@ -31,7 +31,6 @@ const initialIncomes: Income[] = [{
 export const Calculator = () => {
     const [incomes, setIncomes] = useState<Income[]>(initialIncomes);
     const [sharedExpenses, setSharedExpenses] = useState(500);
-
     const [sharedSavings, setSharedSavings] = useState(500);
 
     const saveIncomeOnId = useCallback((id: string) => (input: Income) => {
