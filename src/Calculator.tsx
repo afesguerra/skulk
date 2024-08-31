@@ -60,7 +60,7 @@ export const Calculator = () => {
     return <ContentLayout
         headerVariant={'high-contrast'}
         header={<Header variant={'h1'} description={description}>Household expenses calculator</Header>}>
-        <Grid gridDefinition={[{colspan: 3}, {colspan: 9}]}>
+        <Grid gridDefinition={[{colspan: {default: 12, xs: 6, s: 3}}, {colspan: {default: 12, xs: 6, s: 9}}]}>
             <SpaceBetween direction={"vertical"} size={"m"}>
                 <Container header={<Header
                     variant={"h1"}
